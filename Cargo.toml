@@ -1,0 +1,12 @@
+[package]
+name = "AoC"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.93"
+code-timing-macros = { version = "0.0.5", features = ["release"] }
+
+# Additional recommended dependencies
+itertools = "0.13.0"
+regex = "1.11.1"
