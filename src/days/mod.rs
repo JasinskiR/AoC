@@ -4,6 +4,8 @@ pub mod day03;
 pub mod day04;
 pub mod day05;
 pub mod day06;
+pub mod day07;
+pub mod day08;
 
 pub fn run_day(day: &str, mode: bool) -> Result<(), String> {
     match day {
@@ -13,6 +15,8 @@ pub fn run_day(day: &str, mode: bool) -> Result<(), String> {
         "4" => day04::run(mode),
         "5" => day05::run(mode),
         "6" => day06::run(mode),
+        "7" => day07::run(mode),
+        "8" => day08::run(mode),
         // Add more days here...
         _ => return Err(format!("Day {} is not implemented!", day)),
     }

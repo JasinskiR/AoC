@@ -161,6 +161,114 @@ fn part1(lines: &[String]) -> Result<i32, io::Error> {
     Ok(visited.len() as i32)
 }
 
+// fn part2(lines: &[String]) -> Result<i32, std::io::Error> {
+//     let mut grid: HashMap<(usize, usize), char> = HashMap::new();
+//     let mut guard_pos = (0, 0);
+//     let mut guard_dir = '^';
+
+//     // Populate grid HashMap and locate the guard's position
+//     for (i, line) in lines.iter().enumerate() {
+//         for (j, ch) in line.chars().enumerate() {
+//             grid.insert((i, j), ch);
+//             if "^>v<".contains(ch) {
+//                 guard_pos = (i, j);
+//                 guard_dir = ch;
+//             }
+//         }
+//     }
+
+//     // HashSet to track unique visited positions and directions
+//     let mut visited = HashSet::new();
+//     visited.insert((guard_pos, guard_dir));
+
+//     // Helper function to simulate the guard's movement with an added obstacle
+//     fn causes_loop(
+//         grid: &HashMap<(usize, usize), char>,
+//         start_pos: (usize, usize),
+//         start_dir: char,
+//     ) -> bool {
+//         let mut guard_pos = start_pos;
+//         let mut guard_dir = start_dir;
+//         let mut visited = HashSet::new();
+//         visited.insert((guard_pos, guard_dir));
+
+//         // Create a closure for the movement logic to avoid capturing dynamic environment
+//         let directions: HashMap<char, (isize, isize)> =
+//             HashMap::from([('^', (-1, 0)), ('>', (0, 1)), ('v', (1, 0)), ('<', (0, -1))]);
+//         let turn_right: HashMap<char, char> =
+//             HashMap::from([('^', '>'), ('>', 'v'), ('v', '<'), ('<', '^')]);
+
+//         // Run the loop for the guard's movement
+//         loop {
+//             // Access the directions and turn_right maps inside the loop.
+//             let (dx, dy) = directions[&guard_dir];
+//             let next_pos = (
+//                 (guard_pos.0 as isize + dx) as usize,
+//                 (guard_pos.1 as isize + dy) as usize,
+//             );
+
+//             // Check for loop detection: If the guard revisits the same position with the same direction
+//             if visited.contains(&(next_pos, guard_dir)) {
+//                 return true; // A loop is detected
+//             }
+
+//             // Mark the position as visited with the current direction
+//             visited.insert((next_pos, guard_dir));
+
+//             // If the guard reaches a wall or obstruction, turn right
+//             // If the guard reaches a wall or obstruction, turn right
+//             if let Some(&cell) = grid.get(&next_pos) {
+//                 if cell == '#' {
+//                     guard_dir = turn_right[&guard_dir]; // Turn right if there's an obstacle
+//                 } else {
+//                     guard_pos = next_pos; // Move to the next position
+//                 }
+//             } else {
+//                 // Check if the next position is within bounds of the grid
+//                 let (next_row, next_col) = next_pos;
+//                 let max_row = grid.keys().map(|(r, _)| *r).max().unwrap_or(0);
+//                 let max_col = grid.keys().map(|(_, c)| *c).max().unwrap_or(0);
+
+//                 // If the next position is out of bounds, stop the guard
+//                 if next_row <= max_row && next_col <= max_col {
+//                     guard_pos = next_pos; // Move to the next position if it's within bounds
+//                 } else {
+//                     // Handle out-of-bounds (optional: stop the guard, wrap around, etc.)
+//                     // Here we just stop the guard, but you can decide on your desired behavior
+//                     return false; // Exit the loop if the guard moves out of bounds
+//                 }
+//             }
+//         }
+//     }
+
+//     // let mut loop_positions = HashSet::new();
+//     let mut loop_positions: HashSet<(usize, usize)> = HashSet::new();
+
+//     // Step 1: Collect positions to test
+//     let mut test_positions = Vec::new();
+//     for (&pos, &cell) in grid.iter() {
+//         if cell == '.' {
+//             // Only test empty spaces
+//             test_positions.push(pos); // Collect positions that are empty
+//         }
+//     }
+
+//     // Step 2: Temporarily place obstructions and check for loops
+//     for pos in test_positions {
+//         // Temporarily place an obstruction
+//         grid.insert(pos, '#');
+
+//         // Simulate and check if a loop occurs
+//         if causes_loop(&grid, guard_pos, guard_dir) {
+//             loop_positions.insert(pos);
+//         }
+
+//         // Remove the obstruction after the test
+//         grid.insert(pos, '.');
+//     }
+
+//     Ok(loop_positions.len() as i32)
+// }
 fn part2(lines: &[String]) -> Result<i32, std::io::Error> {
     let mut grid: HashMap<(usize, usize), char> = HashMap::new();
     let mut guard_pos = (0, 0);
@@ -186,26 +294,34 @@ fn part2(lines: &[String]) -> Result<i32, std::io::Error> {
         grid: &HashMap<(usize, usize), char>,
         start_pos: (usize, usize),
         start_dir: char,
+        obstacle_pos: Option<(usize, usize)>,
     ) -> bool {
         let mut guard_pos = start_pos;
         let mut guard_dir = start_dir;
         let mut visited = HashSet::new();
         visited.insert((guard_pos, guard_dir));
 
-        // Create a closure for the movement logic to avoid capturing dynamic environment
+        // Directions and turning logic
         let directions: HashMap<char, (isize, isize)> =
             HashMap::from([('^', (-1, 0)), ('>', (0, 1)), ('v', (1, 0)), ('<', (0, -1))]);
         let turn_right: HashMap<char, char> =
             HashMap::from([('^', '>'), ('>', 'v'), ('v', '<'), ('<', '^')]);
 
-        // Run the loop for the guard's movement
         loop {
-            // Access the directions and turn_right maps inside the loop.
+            // Calculate the next position based on the current direction
             let (dx, dy) = directions[&guard_dir];
             let next_pos = (
                 (guard_pos.0 as isize + dx) as usize,
                 (guard_pos.1 as isize + dy) as usize,
             );
+
+            // If an obstacle is placed at the next position, turn right
+            if let Some(obstacle) = obstacle_pos {
+                if next_pos == obstacle {
+                    guard_dir = turn_right[&guard_dir]; // Turn right if there's an obstacle
+                    continue;
+                }
+            }
 
             // Check for loop detection: If the guard revisits the same position with the same direction
             if visited.contains(&(next_pos, guard_dir)) {
@@ -215,7 +331,6 @@ fn part2(lines: &[String]) -> Result<i32, std::io::Error> {
             // Mark the position as visited with the current direction
             visited.insert((next_pos, guard_dir));
 
-            // If the guard reaches a wall or obstruction, turn right
             // If the guard reaches a wall or obstruction, turn right
             if let Some(&cell) = grid.get(&next_pos) {
                 if cell == '#' {
@@ -233,38 +348,112 @@ fn part2(lines: &[String]) -> Result<i32, std::io::Error> {
                 if next_row <= max_row && next_col <= max_col {
                     guard_pos = next_pos; // Move to the next position if it's within bounds
                 } else {
-                    // Handle out-of-bounds (optional: stop the guard, wrap around, etc.)
-                    // Here we just stop the guard, but you can decide on your desired behavior
                     return false; // Exit the loop if the guard moves out of bounds
                 }
             }
         }
     }
 
-    // let mut loop_positions = HashSet::new();
     let mut loop_positions: HashSet<(usize, usize)> = HashSet::new();
+    let mut obstacle_skip_count = 0;
 
-    // Step 1: Collect positions to test
+    // Step 1: Collect positions to test (only empty spaces)
     let mut test_positions = Vec::new();
     for (&pos, &cell) in grid.iter() {
         if cell == '.' {
-            // Only test empty spaces
-            test_positions.push(pos); // Collect positions that are empty
+            test_positions.push(pos); // Collect empty spaces
         }
     }
 
-    // Step 2: Temporarily place obstructions and check for loops
+    // Step 2: Check for potential loops by testing empty spaces
     for pos in test_positions {
-        // Temporarily place an obstruction
-        grid.insert(pos, '#');
-
-        // Simulate and check if a loop occurs
-        if causes_loop(&grid, guard_pos, guard_dir) {
-            loop_positions.insert(pos);
+        if obstacle_skip_count < 3 {
+            // Skip the first 3 obstacles that the guard meets
+            obstacle_skip_count += 1;
+            continue;
         }
 
-        // Remove the obstruction after the test
-        grid.insert(pos, '.');
+        let relevant_obstacles: Vec<(usize, usize)> = match guard_dir {
+            '^' => grid
+                .iter()
+                .filter_map(|(&(x, y), &c)| {
+                    if c == '#' && x == guard_pos.0 && y > guard_pos.1 {
+                        Some((x, y))
+                    } else {
+                        None
+                    }
+                })
+                .collect(),
+            'v' => grid
+                .iter()
+                .filter_map(|(&(x, y), &c)| {
+                    if c == '#' && x == guard_pos.0 && y < guard_pos.1 {
+                        Some((x, y))
+                    } else {
+                        None
+                    }
+                })
+                .collect(),
+            '<' => grid
+                .iter()
+                .filter_map(|(&(x, y), &c)| {
+                    if c == '#' && y == guard_pos.1 && x < guard_pos.0 {
+                        Some((x, y))
+                    } else {
+                        None
+                    }
+                })
+                .collect(),
+            '>' => grid
+                .iter()
+                .filter_map(|(&(x, y), &c)| {
+                    if c == '#' && y == guard_pos.1 && x > guard_pos.0{
+                        Some((x, y))
+                    } else {
+                        None
+                    }
+                })
+                .collect(),
+            _ => vec![],
+        };
+
+        // Find the closest obstacle in the direction the guard will turn
+        let next_obstacle = match guard_dir {
+            '^' => relevant_obstacles
+                .into_iter()
+                .filter(|&(x, y)| y > guard_pos.1) // Looking for obstacles in the same row (horizontal direction) with larger `y` (to the right)
+                .min_by_key(|&(_, y)| y), // Closest obstacle to the right
+
+            'v' => relevant_obstacles
+                .into_iter()
+                .filter(|&(x, y)| y < guard_pos.1) // Looking for obstacles in the same row (horizontal direction) with smaller `y` (to the left)
+                .max_by_key(|&(_, y)| y), // Closest obstacle to the left
+
+            '<' => relevant_obstacles
+                .into_iter()
+                .filter(|&(x, y)| x > guard_pos.0) // Looking for obstacles in the same column (vertical direction) with larger `x` (downwards)
+                .min_by_key(|&(x, _)| x), // Closest obstacle downwards
+
+            '>' => relevant_obstacles
+                .into_iter()
+                .filter(|&(x, y)| x < guard_pos.0) // Looking for obstacles in the same column (vertical direction) with smaller `x` (upwards)
+                .max_by_key(|&(x, _)| x), // Closest obstacle upwards
+
+            _ => None,
+        };
+
+        // If we found an obstacle in the direction the guard is facing, simulate placing it
+        if let Some(next_pos) = next_obstacle {
+            grid.insert(pos, '#'); // Place the obstacle temporarily
+
+            // Simulate and check if a loop occurs
+            if causes_loop(&grid, guard_pos, guard_dir, Some(pos)) {
+                loop_positions.insert(pos); // Add position to loop positions
+            }
+
+            // Remove the obstruction after the test
+            grid.insert(pos, '.');
+        }
     }
 
     Ok(loop_positions.len() as i32)
