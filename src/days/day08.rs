@@ -115,17 +115,14 @@ fn part2(lines: &[String]) -> Result<i32, io::Error> {
         for (i, &a1) in positions.iter().enumerate() {
             for (j, &a2) in positions.iter().enumerate() {
                 if i != j {
-                    // Calculate the direction vector (dx, dy)
                     let dx = a2.1 as i32 - a1.1 as i32;
                     let dy = a2.0 as i32 - a1.0 as i32;
                     let vec = (dx, dy);
 
-                    // Antinode 1 (towards a1)
                     let mut antinode1 = (
                         a1.0 as i32 - dy,
                         a1.1 as i32 - dx,
                     );
-                    // Antinode 2 (beyond a2)
                     let mut antinode2 = (
                         a2.0 as i32 + dy,
                         a2.1 as i32 + dx,
