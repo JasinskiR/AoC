@@ -63,24 +63,21 @@ fn part1(lines: &[String]) -> Result<i32, io::Error> {
                     let dx = a2.1 as i32 - a1.1 as i32;
                     let dy = a2.0 as i32 - a1.0 as i32;
 
+                    let antinode1 = (a1.0 as i32 - dy, a1.1 as i32 - dx);
 
-                    let antinode1 = (
-                        a1.0 as i32 - dy,
-                        a1.1 as i32 - dx,
-                    );
+                    let antinode2 = (a2.0 as i32 + dy, a2.1 as i32 + dx);
 
-                    let antinode2 = (
-                        a2.0 as i32 + dy,
-                        a2.1 as i32 + dx,
-                    );
-
-                    if antinode1.0 >= 0 && antinode1.0 < rows as i32
-                        && antinode1.1 >= 0 && antinode1.1 < cols as i32
+                    if antinode1.0 >= 0
+                        && antinode1.0 < rows as i32
+                        && antinode1.1 >= 0
+                        && antinode1.1 < cols as i32
                     {
                         unique_antinodes.insert((antinode1.0 as usize, antinode1.1 as usize));
                     }
-                    if antinode2.0 >= 0 && antinode2.0 < rows as i32
-                        && antinode2.1 >= 0 && antinode2.1 < cols as i32
+                    if antinode2.0 >= 0
+                        && antinode2.0 < rows as i32
+                        && antinode2.1 >= 0
+                        && antinode2.1 < cols as i32
                     {
                         unique_antinodes.insert((antinode2.0 as usize, antinode2.1 as usize));
                     }
@@ -110,7 +107,6 @@ fn part2(lines: &[String]) -> Result<i32, io::Error> {
         }
     }
 
-    // Process each frequency
     for (_freq, positions) in antennas.iter() {
         for (i, &a1) in positions.iter().enumerate() {
             for (j, &a2) in positions.iter().enumerate() {
@@ -119,24 +115,22 @@ fn part2(lines: &[String]) -> Result<i32, io::Error> {
                     let dy = a2.0 as i32 - a1.0 as i32;
                     let vec = (dx, dy);
 
-                    let mut antinode1 = (
-                        a1.0 as i32 - dy,
-                        a1.1 as i32 - dx,
-                    );
-                    let mut antinode2 = (
-                        a2.0 as i32 + dy,
-                        a2.1 as i32 + dx,
-                    );
+                    let mut antinode1 = (a1.0 as i32 - dy, a1.1 as i32 - dx);
+                    let mut antinode2 = (a2.0 as i32 + dy, a2.1 as i32 + dx);
 
-                    while antinode1.0 >= 0 && antinode1.0 < rows as i32
-                        && antinode1.1 >= 0 && antinode1.1 < cols as i32
+                    while antinode1.0 >= 0
+                        && antinode1.0 < rows as i32
+                        && antinode1.1 >= 0
+                        && antinode1.1 < cols as i32
                     {
                         unique_antinodes.insert((antinode1.0 as usize, antinode1.1 as usize));
                         antinode1.0 -= dy;
                         antinode1.1 -= dx;
                     }
-                    while antinode2.0 >= 0 && antinode2.0 < rows as i32
-                        && antinode2.1 >= 0 && antinode2.1 < cols as i32
+                    while antinode2.0 >= 0
+                        && antinode2.0 < rows as i32
+                        && antinode2.1 >= 0
+                        && antinode2.1 < cols as i32
                     {
                         unique_antinodes.insert((antinode2.0 as usize, antinode2.1 as usize));
                         antinode2.0 += dy;
